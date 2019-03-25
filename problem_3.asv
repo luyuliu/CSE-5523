@@ -1,0 +1,39 @@
+test=load('test79.mat');
+test=test.d79;
+train=load('train79.mat');
+train=train.d79;
+label = vertcat(ones(1000,1)*7, ones(1000,1)*9);
+
+
+
+trainPCA = pca(transpose(train));
+testPCA = pca(transpose(test));
+
+NList = [25:25:1000]
+for i = 1:40
+    N= NList[i];
+    
+    train = [train(1:N);train[1:N]];
+    
+    % SVM
+    SVMModel = fitcsvm(train, label);
+
+    SVMResult = predict(SVMModel, test);
+
+    SVMDiff = SVMResult - label;
+
+    SVMLoss = transpose(SVMDiff)*SVMDiff/4/N
+
+
+    % Least Square Linear
+    lambda = 0.0001; % lambda = 1/C
+    LSLCModel = fitclinear(train,label,'Regularization','lasso','lambda',lambda);
+    LSLCResult = predict(LSLCModel,test);
+    LSLCLoss=zeros(length(lambda),1);
+    diff=abs(LSLCResult-label)/2;
+    LSLCLoss=(sum(diff))/N
+    
+    
+end
+
+

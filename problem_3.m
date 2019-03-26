@@ -2,13 +2,13 @@ testRaw=load('test79.mat');
 testRaw=testRaw.d79;
 trainRaw=load('train79.mat');
 trainRaw=trainRaw.d79;
-labelRaw = vertcat(ones(1000,1)*0, ones(1000,1)*1);
+labelRaw = vertcat(ones(1000,1)*1, ones(1000,1)*-1);
 
 
 trainPCA_coeff =pca(trainRaw,'NumComponents', 400);
 testPCA_coeff =pca(testRaw,'NumComponents', 400);
 trainPCA = trainRaw*trainPCA_coeff;
-testPCA = testRaw*trainPCA_coeff;
+testPCA = testRaw*testPCA_coeff;
 
 
 NList = [25:25:1000];
@@ -21,7 +21,7 @@ for i = 1:length(NList)
     
     train = [trainPCA(1:N,:);trainPCA(1001:1000+N,:)];
     test = [testPCA(1:N,:);testPCA(1001:1000+N,:)];
-    label = [ones(N,1)*0; ones(N,1)];
+    label = [ones(N,1)*1; ones(N,1)*(-1)];
     
     % SVM
     svmModel = fitclinear(train,label);

@@ -6,24 +6,19 @@ label = vertcat(ones(1000,1)*1, ones(1000,1)*-1);
 
 N=2000;
 
-% Least Square Linear
+% SVM
 lambda = logspace(-8,1,20); % lambda = 1/C
-LSLCModel = fitclinear(train,label,'Regularization','ridge','lambda',lambda);
-LSLCResult = predict(LSLCModel,train);
-LSLCLossList=zeros(length(lambda),1);
+svmModel = fitclinear(train,label,'Regularization','ridge','lambda',lambda);
+svmResult = predict(svmModel,train);
+svmLossList=zeros(length(lambda),1);
 % prediction accuracy rate
 for i=1:length(lambda)
-    diff=LSLCResult(:,i)-label;
-    LSLCLossList(i)=(transpose(diff)*diff)/(4*N);
+    diff=svmResult(:,i)-label;
+    svmLossList(i)=(transpose(diff)*diff)/(4*N);
 end
 
-% SVM
-SVMModel = fitcsvm(train, label);
-
-SVMResult = predict(SVMModel, test);
-
-SVMDiff = SVMResult - label;
-
-loss = transpose(SVMDiff)*SVMDiff/(4*N)
-
+% LSLC
+w=lsqlin(train,label);
+testResult=sign(test*w);
+svmLoss = 1/2*(sum(abs(testResult-label)))/2000
 

@@ -1,39 +1,37 @@
-test=load('test79.mat');
-test=test.d79;
-train=load('train79.mat');
-train=train.d79;
-label = vertcat(ones(1000,1)*7, ones(1000,1)*9);
+testRaw=load('test79.mat');
+testRaw=testRaw.d79;
+trainRaw=load('train79.mat');
+trainRaw=trainRaw.d79;
+labelRaw = vertcat(ones(1000,1)*7, ones(1000,1)*9);
 
 
 
-trainPCA = pca(transpose(train));
-testPCA = pca(transpose(test));
+trainPCA_coeff =pca(trainRaw,'NumComponents', 400);
+testPCA_coeff =pca(testRaw,'NumComponents', 400);
+trainPCA = trainRaw*trainPCA_coeff;
+testPCA = testRaw*testPCA_coeff;
 
-NList = [25:25:1000]
-for i = 1:40
-    N= NList[i];
+
+NList = [975:25:1000];
+
+SVMLossList=ones(length(NList),1);
+LSLCLossList=ones(length(NList),1);
+
+for i = 1:length(NList)
+    N= NList(i);
     
-    train = [train(1:N);train[1:N]];
+    train = [trainPCA(1:N,:);trainPCA(1001:1000+N,:)];
+    test = [testPCA(1:N,:);testPCA(1001:1000+N,:)];
+    label = [ones(N,1)*7; ones(N,1)*9];
     
     % SVM
-    SVMModel = fitcsvm(train, label);
-
-    SVMResult = predict(SVMModel, test);
-
-    SVMDiff = SVMResult - label;
-
-    SVMLoss = transpose(SVMDiff)*SVMDiff/4/N
-
-
-    % Least Square Linear
-    lambda = 0.0001; % lambda = 1/C
-    LSLCModel = fitclinear(train,label,'Regularization','lasso','lambda',lambda);
+    lambda = 10e-8; % lambda = 1/C
+    LSLCModel = fitclinear(train,label,'Regularization','ridge','lambda',lambda);
     LSLCResult = predict(LSLCModel,test);
-    LSLCLoss=zeros(length(lambda),1);
-    diff=abs(LSLCResult-label)/2;
-    LSLCLoss=(sum(diff))/N
+    diff=LSLCResult-label;
+    LSLCLossList(i)=transpose(diff)*diff/4/(N*2);
     
-    
+    % 
 end
 
 

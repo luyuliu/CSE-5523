@@ -1,0 +1,25 @@
+test=load('test79.mat');
+test=test.d79;
+train=load('train79.mat');
+train=train.d79;
+label = vertcat(ones(1000,1)*1, ones(1000,1)*-1);
+
+N=2000;
+d=784;
+k=2;
+
+trainPCAAuto =pca(train,'NumComponents', 2);
+
+normalizedTrain = train - repelem(mean(train),2000,1);
+covTrain = train'*train/N;
+[eigenvectors,eigenvaluesMatrix] = eig(covTrain);
+[eigenvaluesOrdered,ind] = sort(diag(eigenvaluesMatrix),'descend');
+eigenvaluesMatrixOrdered = eigenvaluesMatrix(ind,ind);
+eigenvectorsOrdered = eigenvectors(:,ind);
+
+[a, b, c] = svd(covTrain);
+pp = a(:,1:k);
+
+P = eigenvectorsOrdered(:,1:k);
+
+newTrain = train*P;

@@ -27,10 +27,8 @@ L = kfoldLoss(sDT)
 
 %% Bagged trees
 
-for split = 40:60
-    t=templateTree('MaxNumSplits',inx(1));
-    BAT = fitcensemble(train,label,'Learners',t,'Method','Bag','CrossVal','on');
-end
+t=templateTree('MaxNumSplits',inx(1));
+BAT = fitcensemble(train,label,'Learners',t,'Method','Bag','CrossVal','on');
 kFoldLossFunBaT=kfoldLoss(BAT,'mode','cumulative');
 kFoldLossBaT = kFoldLossFunBaT(end)
 figure(1)

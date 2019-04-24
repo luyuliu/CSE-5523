@@ -1,13 +1,16 @@
-% HW3 of Machine Learning Class Problem 2 about PCA subproblem 1
-clear
-train = load('train79.mat');
-test = load('test79.mat');
-X=train.d79;
-% the number of observated data in training dataset
-n = length(train.d79);
+test=load('test79.mat');
+test=test.d79;
+train=load('train79.mat');
+train=train.d79;
+label = vertcat(ones(1000,1)*1, ones(1000,1)*-1);
 
-% subproblem 1
-[X_norm, mu, sigma] = featureNormalize(X);
+N=2000;
+
+X=train;
+mu = mean(X);
+X_norm = bsxfun(@minus, X, mu);
+sigma = std(X_norm);
+
 [U, S] = pca_jialin(X_norm);
 k=2;
 Ureduce=U(:, 1:k);
